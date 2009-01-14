@@ -14,6 +14,9 @@ source=(http://www.kernel.org/pub/linux/libs/pam/library/Linux-PAM-$pkgver.tar.b
         ftp://ftp.suse.com/pub/people/kukuk/pam/pam_unix2/pam_unix2-2.6.tar.bz2 \
         other)
 options=('!libtool' '!emptydirs')
+md5sums=('7cc8653cb31717dbb1380bde980c9fdf'
+         'e2788389a6c59224110a45fcff30e02b'
+         '6e6c8719e5989d976a14610f340bd33a')
 
 build() {
   cd $srcdir/Linux-PAM-$pkgver
@@ -45,6 +48,4 @@ _EOT
   # set unix_chkpwd uid
   chmod +s $pkgdir/sbin/unix_chkpwd
 }
-md5sums=('7cc8653cb31717dbb1380bde980c9fdf'
-         'e2788389a6c59224110a45fcff30e02b'
-         '6e6c8719e5989d976a14610f340bd33a')
+
