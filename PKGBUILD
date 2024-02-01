@@ -48,12 +48,29 @@ sha256sums=('fff4a34e5bbee77e2e8f1992f27631e2329bcbf8a0563ddeb5c3389b4e3169ad'
 options=('!emptydirs')
 
 build() {
+  local \
+    _configure_opts=()
+  _configure_opts=(
+    --libdir=/usr/lib
+    --sbindir=/usr/bin
+    --disable-db
+  )
+  [[ "${_systemd}" == true ]] && \
+    _configure_opts+=(
+      --enaable-logind
+    )
+  [[ "${_systemd}" == false ]] && \
+    _configure_opts+=(
+      --disable-logind
+    )
   cd Linux-PAM-$pkgver
   ./configure \
-    --libdir=/usr/lib \
-    --sbindir=/usr/bin \
-    --enable-logind \
-    --disable-db
+    "${_configure_opts[@]}"
+    # --libdir=/usr/lib \
+    # --sbindir=/usr/bin \
+    # --enable-logind \
+    # --disable-logind \
+    # --disable-db
   make
 }
 
