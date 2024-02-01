@@ -1,6 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0
+#
 # Maintainer: Tobias Powalowski <tpowa@archlinux.org>
 # Maintainer: Levente Polyak <anthraxx[at]archlinux[dot]org>
 # Contributor: judd <jvinet@zeroflux.org>
+# Maintainer: Truocolo <truocolo@aol.com>
+# Maintainer: Pellegrino Prevete <pellegrinoprevete@gmail.com>
 
 pkgname=pam
 pkgver=1.6.0
@@ -26,6 +30,7 @@ makedepends=(
   'w3m'
   'docbook-xml>=4.4'
   'docbook-xsl'
+  'shadow'
 )
 provides=(
   'libpam.so'
@@ -39,13 +44,16 @@ validpgpkeys=(
         '296D6F29A020808E8717A8842DB5BD89A340AEB7' #Dimitry V. Levin <ldv@altlinux.org>
 )
 
-sha256sums=('fff4a34e5bbee77e2e8f1992f27631e2329bcbf8a0563ddeb5c3389b4e3169ad'
-            'SKIP'
-            '3e82730d3350795c42f3708f6609a92c1df841d518aa17c28fd702fe5ec23a32'
-            'SKIP'
-            '5631f224e90c4f0459361c2a5b250112e3a91ba849754bb6f67d69d683a2e5ac')
-
-options=('!emptydirs')
+sha256sums=(
+  'fff4a34e5bbee77e2e8f1992f27631e2329bcbf8a0563ddeb5c3389b4e3169ad'
+  'SKIP'
+  '3e82730d3350795c42f3708f6609a92c1df841d518aa17c28fd702fe5ec23a32'
+  'SKIP'
+  '5631f224e90c4f0459361c2a5b250112e3a91ba849754bb6f67d69d683a2e5ac'
+)
+options=(
+  '!emptydirs'
+)
 
 build() {
   local \
@@ -66,21 +74,22 @@ build() {
   cd Linux-PAM-$pkgver
   ./configure \
     "${_configure_opts[@]}"
-    # --libdir=/usr/lib \
-    # --sbindir=/usr/bin \
-    # --enable-logind \
-    # --disable-logind \
-    # --disable-db
   make
 }
 
 package() {
-  install -Dm 644 $pkgname.tmpfiles "$pkgdir"/usr/lib/tmpfiles.d/$pkgname.conf
-  cd Linux-PAM-$pkgver
-  make DESTDIR="$pkgdir" SCONFIGDIR=/etc/security install
+  install \
+    -Dm 644 \
+    $pkgname.tmpfiles \
+    "$pkgdir"/usr/lib/tmpfiles.d/$pkgname.conf
+  cd \
+    Linux-PAM-$pkgver
+  make \
+    DESTDIR="$pkgdir" \
+    SCONFIGDIR=/etc/security install
 
   # set unix_chkpwd uid
   chmod +s "$pkgdir"/usr/bin/unix_chkpwd
 }
 
-# vim: ts=2 sw=2 et:
+# vim: ft=sh syn=sh et
