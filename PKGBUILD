@@ -184,7 +184,8 @@ if [[ "${_tag_name}" == "pkgver" ]]; then
 elif [[ "${_tag_name}" == "commit" ]]; then
   _tag="${_commit}"
 fi
-_tarname="${_Kernel}-${_PKG}-${_tag}"
+_project_name="${_Kernel}-${_PKG}"
+_tarname="${_project_name}-${_tag}"
 _tarfile="${_tarname}.${_archive_format}"
 _http="https://${_git_service}.com"
 _url="${_http}/${_ns}/${_kernel}-${_pkg}"
@@ -210,7 +211,7 @@ sha256sums=(
 )
 if [[ "${_evmfs}" == "false" ]]; then
   source+=(
-    "${_url}/releases/download/v${pkgver}/${_tarname}"{"","-docs"}".tar.xz"{"",".asc"}
+    "${_url}/releases/download/v${pkgver}/${_project_name}"{"","-docs"}".tar.xz"{"",".asc"}
   )
   validpgpkeys=(
     # Thorsten Kukuk
