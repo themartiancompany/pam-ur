@@ -39,6 +39,42 @@
 #   judd
 #     <jvinet@zeroflux.org>
 
+_os="$(
+  uname \
+    -o)"
+_evmfs_available="$(
+  command \
+    -v \
+    "evmfs" || \
+    true)"
+if [[ ! -v "_evmfs" ]]; then
+  if [[ "${_evmfs_available}" != "" ]]; then
+    _evmfs="true"
+  elif [[ "${_evmfs_available}" == "" ]]; then
+    _evmfs="false"
+  fi
+fi
+if [[ ! -v "_git" ]]; then
+  if [[ "${_evmfs}" == "false" ]]; then
+    _git="false"
+  elif [[ "${_evmfs}" == "true" ]]; then
+    _git="true"
+  fi
+fi
+if [[ ! -v "_tag_name" ]]; then
+  if [[ "${_git}" == "false" ]]; then
+    _tag_name="pkgver"
+  elif [[ "${_git}" == "true" ]]; then
+    _tag_name="commit"
+  fi
+fi
+if [[ "${_os}" == "Android" ]]; then
+  _libc="ndk-sysroot"
+elif [[ "${_os}" == "GNU/Linux" ]]; then
+  _libc="glibc"
+elif [[ "${_os}" == "Windows" ]]; then
+  _libc="glibc"
+fi
 _pkg=pam
 _PKG=PAM
 _kernel=linux
@@ -48,7 +84,9 @@ pkgname=(
   "${_pkg}"
 )
 pkgver=1.6.0
+_docbook_xml_pkgver="4.4"
 _bundle_commit="fe03a10115c082a8486ccbab7462139d7e4bb067"
+_commit="${_bundle_commit}"
 pkgrel=3
 _pkgdesc=(
   "${_PKG} (Pluggable"
@@ -73,28 +111,32 @@ license=(
 )
 url="http://${_kernel}-${_pkg}.org"
 depends=(
-  'glibc'
-  'libtirpc'
-  'pambase'
   'audit'
-  'libaudit.so'
-  'libxcrypt'
-  'libcrypt.so'
+  "${_libc}"
+  'libtirpc'
+  "${_pkg}base"
+  "libaudit.so"
+  "libxcrypt"
+  "libcrypt.so"
 )
 makedepends=(
-  'flex'
-  'w3m'
-  'docbook-xml>=4.4'
-  'docbook-xsl'
+  "flex"
   'shadow'
+  'w3m'
 )
+if [[ "${_docs}" == "true" ]]; then
+  makedepends+=(
+    "docbook-xml>=${_docbook_xml_pkgver}"
+    "docbook-xsl"
+  )
+fi
 provides=(
-  'libpam.so'
-  'libpamc.so'
-  'libpam_misc.so'
+  "lib${_pkg}.so"
+  "lib${_pkg}c.so"
+  "lib${_pkg}_misc.so"
 )
 backup=(
-  "etc/security/"{"access.conf","faillock.conf","group.conf","limits.conf","namespace.conf","namespace.init","pwhistory.conf","pam_env.conf","time.conf"} \
+  "etc/security/"{"access.conf","faillock.conf","group.conf","limits.conf","namespace.conf","namespace.init","pwhistory.conf","${_pkg}_env.conf","time.conf"} \
   "etc/environment"
 )
 _http="https://github.com"
@@ -143,7 +185,8 @@ build() {
       --disable-logind
     )
   fi
-  cd "${_Kernel}-${_PKG}-${pkgver}"
+  cd \
+    "${_Kernel}-${_PKG}-${_tag}"
   ./configure \
     "${_configure_opts[@]}"
   make
@@ -165,7 +208,6 @@ package() {
   make \
     "${_make_opts[@]}" \
     install
-
   # set unix_chkpwd uid
   chmod \
     +s \
