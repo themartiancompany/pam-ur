@@ -119,8 +119,11 @@ _pkgdesc=(
 )
 pkgdesc="${_pkgdesc[*]}"
 if [[ ! -v "_ns" ]]; then
-  _ns="${_kernel}-${_pkg}"
-  _ns="themartiancompany"
+  if [[ "${_git}" == "false" ]]; then
+    _ns="${_kernel}-${_pkg}"
+  elif [[ "${_git}" == "true" ]]; then
+    _ns="themartiancompany"
+  fi
 fi
 arch=(
   "aarch64"
