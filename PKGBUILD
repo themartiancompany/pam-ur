@@ -177,7 +177,7 @@ backup=(
 )
 if [[ "${_tag_name}" == "pkgver" ]]; then
   _tag="${pkgver}"
-if [[ "${_tag_name}" == "commit" ]]; then
+elif [[ "${_tag_name}" == "commit" ]]; then
   _tag="${_commit}"
 fi
 _tarname="${_Kernel}-${_PKG}-${_tag}"
@@ -196,8 +196,9 @@ _docs_pkgver_sum="3e82730d3350795c42f3708f6609a92c1df841d518aa17c28fd702fe5ec23a
 _docs_pkgver_sig_sum="SKIP"
 _evmfs_dir="evmfs://${_chain_id}/${_fs}/${_evmfs_ns}"
 _evmfs_uri="${_evmfs_dir}/${_bundle_sum}"
+_evmfs_src="${_tarfile}::${_evmfs_uri}"
 _sig_uri="${_evmfs_dir}/${_bundle_sig_sum}"
-_evmfs_src=""
+_sig_src="${_tarfile}::${_sig_uri}"
 source=(
   "${pkgname}.tmpfiles"
 )
@@ -238,14 +239,15 @@ elif [[ "${_evmfs}" == "true" ]]; then
     #   <dvorak@0x87003Bd6C074C713783df04f36517451fF34CBEf>
     '12D8E3D7888F741E89F86EE0FEC8567A644F1D16'
   )
-fi
   source+=(
-    "${_tarname}::${_evmfs_uri}/releases/download/v$pkgver/${_Kernel}-${_PKG}-${pkgver}"{"","-docs"}".tar.xz"{"",".asc"}
+    "${_evmfs_src}"
+    "${_sig_src}"
   )
-sha256sums+=(
-  "${_sum}"
-  "${_sig_sum}"
-)
+  sha256sums+=(
+    "${_sum}"
+    "${_sig_sum}"
+  )
+fi
 options=(
   '!emptydirs'
 )
