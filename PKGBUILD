@@ -1,21 +1,77 @@
 # SPDX-License-Identifier: AGPL-3.0
-#
-# Maintainer: Tobias Powalowski <tpowa@archlinux.org>
-# Maintainer: Levente Polyak <anthraxx[at]archlinux[dot]org>
-# Contributor: judd <jvinet@zeroflux.org>
-# Maintainer: Truocolo <truocolo@aol.com>
-# Maintainer: Pellegrino Prevete <pellegrinoprevete@gmail.com>
 
-pkgname=pam
-pkgver=1.6.0
-pkgrel=3
-pkgdesc="PAM (Pluggable Authentication Modules) library"
-arch=(
-  'x86_64'
-  'arm'
+#    -----------------------------------------------------
+#    Copyright © 2024, 2025, 2026  Pellegrino Prevete
+#
+#    All rights reserved
+#    -----------------------------------------------------
+#
+#    This program is free software: you can redistribute
+#    it and/or modify it under the terms of the
+#    GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of
+#    the License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it
+#    will be useful, but WITHOUT ANY WARRANTY;
+#    without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#    See the GNU Affero General Public License for
+#    more details.
+#
+#    You should have received a copy of the
+#    GNU Affero General Public License
+#    along with this program.
+#    If not, see <https://www.gnu.org/licenses/>.
+
+# Maintainers:
+#   Truocolo
+#     <truocolo@aol.com>
+#     <truocolo@0x6E5163fC4BFc1511Dbe06bB605cc14a3e462332b>
+#   Pellegrino Prevete (dvorak)
+#     <pellegrinoprevete@gmail.com>
+#     <dvorak@0x87003Bd6C074C713783df04f36517451fF34CBEf>
+# Contributors:
+#   Tobias Powalowski
+#     <tpowa@archlinux.org>
+#   Levente Polyak
+#     <anthraxx[at]archlinux[dot]org>
+#   judd
+#     <jvinet@zeroflux.org>
+
+_pkg=pam
+_PKG=PAM
+_kernel=linux
+_Kernel=Linux
+pkgbase="${_pkg}"
+pkgname=(
+  "${_pkg}"
 )
-license=('GPL2')
-url="http://linux-pam.org"
+pkgver=1.6.0
+_bundle_commit="fe03a10115c082a8486ccbab7462139d7e4bb067"
+pkgrel=3
+_pkgdesc=(
+  "${_PKG} (Pluggable"
+  "Authentication Modules)"
+  "library"
+)
+pkgdesc="${_pkgdesc[*]}"
+arch=(
+  "aarch64"
+  "arm"
+  "armv8l"
+  "armv7l"
+  "armv6l"
+  "i686"
+  "mips"
+  "pentium4"
+  "powerpc"
+  'x86_64'
+)
+license=(
+  'GPL2'
+)
+url="http://${_kernel}-${_pkg}.org"
 depends=(
   'glibc'
   'libtirpc'
@@ -35,13 +91,28 @@ makedepends=(
 provides=(
   'libpam.so'
   'libpamc.so'
-  'libpam_misc.so')
-backup=(etc/security/{access.conf,faillock.conf,group.conf,limits.conf,namespace.conf,namespace.init,pwhistory.conf,pam_env.conf,time.conf} etc/environment)
-source=(https://github.com/linux-pam/linux-pam/releases/download/v$pkgver/Linux-PAM-$pkgver{,-docs}.tar.xz{,.asc}
-        $pkgname.tmpfiles)
+  'libpam_misc.so'
+)
+backup=(
+  "etc/security/"{"access.conf","faillock.conf","group.conf","limits.conf","namespace.conf","namespace.init","pwhistory.conf","pam_env.conf","time.conf"} \
+  "etc/environment"
+)
+_http="https://github.com"
+_ns="${_kernel}-${_pkg}"
+_url="${_http}/${_ns}/${_kernel}-${_pkg}"
+_evmfs_ns="0x836339402ccb4Bb2bb2051Feb3d1aDC697381B7C"
+_bundle_sum="0abc2b686259be9a1e3bd70b29d965faa1e461b1c99b8256aa6a2e99a56d0e5a"
+_bundle_sig_sum="fae6c7f6a1ae8dfc112c0dfcb9a1acf22962996b236b0e6e112fc428e81b8c9a"
+source=(
+  "${_url}/releases/download/v$pkgver/${_Kernel}-${_PKG}-${pkgver}"{"","-docs"}".tar.xz"{"",".asc"}
+  "${pkgname}.tmpfiles"
+)
 validpgpkeys=(
-        '8C6BFD92EE0F42EDF91A6A736D1A7F052E5924BB' # Thorsten Kukuk
-        '296D6F29A020808E8717A8842DB5BD89A340AEB7' #Dimitry V. Levin <ldv@altlinux.org>
+  # Thorsten Kukuk
+  '8C6BFD92EE0F42EDF91A6A736D1A7F052E5924BB'
+  # Dimitry V. Levin
+  #   <ldv@altlinux.org>
+  '296D6F29A020808E8717A8842DB5BD89A340AEB7'
 )
 
 sha256sums=(
@@ -59,37 +130,46 @@ build() {
   local \
     _configure_opts=()
   _configure_opts=(
-    --libdir=/usr/lib
-    --sbindir=/usr/bin
+    --libdir="/usr/lib"
+    --sbindir="/usr/bin"
     --disable-db
   )
-  [[ "${_systemd}" == true ]] && \
+  if [[ "${_systemd}" == true ]]; then
     _configure_opts+=(
-      --enaable-logind
+      --enable-logind
     )
-  [[ "${_systemd}" == false ]] && \
+  elif [[ "${_systemd}" == false ]]; then
     _configure_opts+=(
       --disable-logind
     )
-  cd Linux-PAM-$pkgver
+  fi
+  cd "${_Kernel}-${_PKG}-${pkgver}"
   ./configure \
     "${_configure_opts[@]}"
   make
 }
 
 package() {
+  local \
+    _make_opts=()
+  _make_opts+=(
+    DESTDIR="${pkgdir}"
+    SCONFIGDIR="/etc/security"
+  )
   install \
-    -Dm 644 \
-    $pkgname.tmpfiles \
-    "$pkgdir"/usr/lib/tmpfiles.d/$pkgname.conf
+    -vDm644 \
+    "${pkgname}.tmpfiles" \
+    "${pkgdir}/usr/lib/tmpfiles.d/${_pkg}.conf"
   cd \
-    Linux-PAM-$pkgver
+    "${_Kernel}_${_PKG}-${pkgver}"
   make \
-    DESTDIR="$pkgdir" \
-    SCONFIGDIR=/etc/security install
+    "${_make_opts[@]}" \
+    install
 
   # set unix_chkpwd uid
-  chmod +s "$pkgdir"/usr/bin/unix_chkpwd
+  chmod \
+    +s \
+    "${pkgdir}/usr/bin/unix_chkpwd"
 }
 
 # vim: ft=sh syn=sh et
