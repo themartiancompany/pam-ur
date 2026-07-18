@@ -118,6 +118,10 @@ _pkgdesc=(
   "library"
 )
 pkgdesc="${_pkgdesc[*]}"
+if [[ ! -v "_ns" ]]; then
+  _ns="${_kernel}-${_pkg}"
+  _ns="themartiancompany"
+fi
 arch=(
   "aarch64"
   "arm"
@@ -182,12 +186,11 @@ elif [[ "${_tag_name}" == "commit" ]]; then
 fi
 _tarname="${_Kernel}-${_PKG}-${_tag}"
 _tarfile="${_tarname}.${_archive_format}"
-_http="https://github.com"
-_ns="${_kernel}-${_pkg}"
+_http="https://${_git_service}.com"
 _url="${_http}/${_ns}/${_kernel}-${_pkg}"
+_evmfs_ns="0x836339402ccb4Bb2bb2051Feb3d1aDC697381B7C"
 _chain_id="100"
 _fs="0x69470b18f8b8b5f92b48f6199dcb147b4be96571"
-_evmfs_ns="0x836339402ccb4Bb2bb2051Feb3d1aDC697381B7C"
 _bundle_sum="0abc2b686259be9a1e3bd70b29d965faa1e461b1c99b8256aa6a2e99a56d0e5a"
 _bundle_sig_sum="fae6c7f6a1ae8dfc112c0dfcb9a1acf22962996b236b0e6e112fc428e81b8c9a"
 _pkgver_sum="fff4a34e5bbee77e2e8f1992f27631e2329bcbf8a0563ddeb5c3389b4e3169ad"
@@ -207,7 +210,7 @@ sha256sums=(
 )
 if [[ "${_evmfs}" == "false" ]]; then
   source+=(
-    "${_url}/releases/download/v$pkgver/${_Kernel}-${_PKG}-${pkgver}"{"","-docs"}".tar.xz"{"",".asc"}
+    "${_url}/releases/download/v${pkgver}/${_tarname}"{"","-docs"}".tar.xz"{"",".asc"}
   )
   validpgpkeys=(
     # Thorsten Kukuk
