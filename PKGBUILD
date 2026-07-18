@@ -211,7 +211,7 @@ sha256sums=(
 )
 if [[ "${_evmfs}" == "false" ]]; then
   source+=(
-    "${_url}/releases/download/v${pkgver}/${_project_name}"{"","-docs"}".tar.xz"{"",".asc"}
+    "${_url}/releases/download/v${pkgver}/${_tarname}"{"","-docs"}".tar.xz"{"",".asc"}
   )
   validpgpkeys=(
     # Thorsten Kukuk
